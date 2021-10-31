@@ -23,8 +23,6 @@ public class TwoPlayersActivity extends AppCompatActivity {
     int last_click = -1;
     int last_clickBlack = -1;
     boolean over = false;
-    int last_time;
-    int last_min;
 
 
     void restart(View view) {

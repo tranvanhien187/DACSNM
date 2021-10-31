@@ -3,7 +3,6 @@ package com.example.dacsnm;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
@@ -11,40 +10,30 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dacsnm.observe.DataStation;
+import com.example.dacsnm.observe.Observer;
+
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import rx.Subscriber;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Observer {
     /**
     *   Red turn : 1
     *   Black turn : 2
     **/
+
+    private DataStation dataStation = DataStation.newInstance();
+
     boolean my_turn = true;
     int last_clickRed = -1;
-    int last_clickBlack = -1;
     boolean over = false;
     Subscriber subscriber;
-    AI m_AI = new AI();
     int last_time;
     int last_min;
-    int mode = 3;
-   // String server_url = "http://119.29.204.118:8099";
-    void oh_no(View view) {
-//        if(!my_turn) {
-//            Toast.makeText( getApplicationContext(), "这不是你的回合", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-        if(record.size() > 1) {
-            board = record.get(record.size()-2);
-            record.remove(record.size()-1);
-            init_board();
-        } else {
-            Toast.makeText( getApplicationContext(), "您还没有落子", Toast.LENGTH_SHORT).show();
-        }
-    }
+
+    private Player mPlayer;
 
     void restart(View view) {
         if(!my_turn) {
@@ -53,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if(record.size()>1) {
             board = first_board.clone();
-            init_board();
+            initBoard();
         } else {
             Toast.makeText( getApplicationContext(), "您还没有落子", Toast.LENGTH_SHORT).show();
         }
@@ -68,13 +57,6 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //
 //    }
-    static int[] str_to_vec(String str) {
-        int[] result = new int[90];
-        String[] s = str.split("\\.");
-        for(int i = 0; i <90; i++)
-            result[i] = Integer.parseInt(s[i]);
-        return result;
-    }
     private int[] board = {
             1, 3, 5, 7,16, 8, 6, 4, 2,
             0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -122,9 +104,8 @@ public class MainActivity extends AppCompatActivity {
     };
     List<int[]> record = new ArrayList<>();
 
-    int[] AI_result;
     // Xếp bàn cờ lần đầu
-    void init_board() {
+    void initBoard() {
         ConstraintLayout c = findViewById(R.id.board);
         for(int i = 0; i < 90; i++) {
             int chess = board[i];
@@ -190,48 +171,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        record.add(board.clone());
-        Intent intent = getIntent();
-        //mode = (int)intent.getSerializableExtra("mode");
 
-        init_board();
-        subscriber = new Subscriber<String>() {
-            @Override
-            public void onNext(String s) {
-                Calendar calendar = Calendar.getInstance();
-                int spent = calendar.get(Calendar.SECOND)-last_time;
-                int min = calendar.get(Calendar.MINUTE)-last_min;
-                spent += min*60;
-                TextView tv = findViewById(R.id.spent_time);
-                tv.setText("AI time: "+spent+"s");
-                int from_index = 0, to_index = 0;
-                for(int i = 0; i < AI_result.length; i++) {
-                    if(AI_result[i] != board[i]) {
-                        if(AI_result[i] == 0 && board[i] != 0){
-                            from_index = i;
-                        } else {
-                            to_index = i;
-                        }
-                    }
-                }
-                update_action(from_index);
-                board[to_index] = board[from_index];
-                board[from_index] = 0;
-                init_board();
-                record.add(board.clone());
-                my_turn = true;
-                //set_info();
-                game_over(board);
-            }
-            @Override
-            public void onCompleted() {
-//                Log.d(tag, "Completed!");
-            }
-            @Override
-            public void onError(Throwable e) {
-//                Log.d(tag, "Error!");
-            }
-        };
+
+        // Tạo người chơi
+        mPlayer = new Player();
+        new Thread(mPlayer).start();
+
+        dataStation.registerObserver(this);
+
+        record.add(board.clone());
+        initBoard();
+
+
     }
 
     void record_board() {
@@ -497,70 +448,6 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-//    void send_chess() {
-//        try {
-//            String baseUrl = server_url;
-//            //合成参数
-//            StringBuilder tempParams = new StringBuilder();
-//
-//            tempParams.append("\""+mode+"chess:"+vec_to_str(board)+"\"");
-//            String params =tempParams.toString();
-//            // 请求的参数转换为byte数组
-//            byte[] postData = params.getBytes();
-//            // 新建一个URL对象
-//            URL url = new URL(baseUrl);
-//            // 打开一个HttpURLConnection连接
-//            HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
-//            // Post请求必须设置允许输出 默认false
-//            urlConn.setDoOutput(true);
-//            //设置请求允许输入 默认是true
-//            urlConn.setDoInput(true);
-//            // Post请求不能使用缓存
-//            urlConn.setUseCaches(false);
-//            // 设置为Post请求
-//            urlConn.setRequestMethod("POST");
-//            //设置本次连接是否自动处理重定向
-//            urlConn.setInstanceFollowRedirects(true);
-//            // 配置请求Content-Type
-//            urlConn.setRequestProperty("Content-Type", "application/text");
-//            // 开始连接
-//            urlConn.connect();
-//            // 发送请求参数
-//            DataOutputStream dos = new DataOutputStream(urlConn.getOutputStream());
-//            dos.write(postData);
-//            dos.flush();
-//            dos.close();
-//            // 判断请求是否成功
-//            if (urlConn.getResponseCode() == 200) {
-//                // 获取返回的数据
-//                StringBuilder sb = new StringBuilder();
-//                BufferedReader rd = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
-//                String line;
-//                while ((line = rd.readLine()) != null) {
-//                    sb.append(line);
-//                }
-//                String result = sb.toString();
-//                AI_result = str_to_vec(result).clone();
-//
-//                Observable observable = Observable.create(new Observable.OnSubscribe<String>() {
-//                    @Override
-//                    public void call(final Subscriber<? super String> subscriber) {
-//                        subscriber.onNext("OK");
-//                    }
-//                });
-//                observable.subscribeOn(Schedulers.io())
-//                        .observeOn(AndroidSchedulers.mainThread())
-//                        .subscribe(subscriber);
-//                Log.e("ok", "Post方式请求成功，result--->" + result);
-//            } else {
-//                Log.e("err", "Post方式请求失败");
-//            }
-//            // 关闭连接
-//            urlConn.disconnect();
-//        } catch (Exception e) {
-//            Log.e("err", e.toString());
-//        }
-//    }
 
 
     // Hiển thị con đang chọn trên màn hình
@@ -612,5 +499,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }
        // }
+    }
+
+
+    @Override
+    public void onGamePlay(int turn) {
+
+    }
+
+    @Override
+    public void onGameOver(boolean isWin) {
+
     }
 }

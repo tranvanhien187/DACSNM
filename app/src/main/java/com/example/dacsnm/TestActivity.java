@@ -23,64 +23,58 @@ public class TestActivity extends AppCompatActivity {
     private DataInputStream din;
     private DataOutputStream dout;
     private boolean isWaiting=true;
-
+    private Player player;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
         edtIp=findViewById(R.id.edt_ip);
         btn=findViewById(R.id.button);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String ip=edtIp.getText().toString();
-                if(!TextUtils.isEmpty(ip)){
-                    try {
-                        connectToServer(ip);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
+        btn.setOnClickListener(view->{
+            player = new Player();
+            new Thread(player).start();
         });
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true){
-                    if(!isWaiting){
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            dout.writeUTF("hello from client");
-                            String msg=din.readUTF();
-                            Log.e("AAA1", "server ---> "+msg );
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            break;
-                        }
-                    }
-                }
-            }
-        }).start();
+//        btn.setOnClickListener(v -> {
+//            String ip=edtIp.getText().toString();
+//            if(!TextUtils.isEmpty(ip)){
+//                try {
+//                    connectToServer(ip);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//        new Thread(() -> {
+//            while(true){
+//                if(!isWaiting){
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    try {
+//                        dout.writeUTF("hello from client");
+//                        String msg=din.readUTF();
+//                        Log.e("AAA", "server ---> "+msg );
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                        break;
+//                    }
+//                }
+//            }
+//        }).start();
     }
 
     private void connectToServer(String ip) throws IOException {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    socket=new Socket(ip,PORT);
-                    din=new DataInputStream(socket.getInputStream());
-                    dout=new DataOutputStream(socket.getOutputStream());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                isWaiting=false;
+        new Thread(() -> {
+            try {
+                socket=new Socket(ip,PORT);
+                din=new DataInputStream(socket.getInputStream());
+                dout=new DataOutputStream(socket.getOutputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            isWaiting=false;
         }).start();
     }
 }
