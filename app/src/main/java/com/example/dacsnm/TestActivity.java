@@ -31,7 +31,7 @@ public class TestActivity extends AppCompatActivity {
         edtIp=findViewById(R.id.edt_ip);
         btn=findViewById(R.id.button);
         btn.setOnClickListener(view->{
-            player = new Player();
+            player = new Player("");
             new Thread(player).start();
         });
 //        btn.setOnClickListener(v -> {

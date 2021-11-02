@@ -229,6 +229,7 @@ public class TwoPlayersActivity extends AppCompatActivity {
                 return false;       //
         }else{  // Lượt quân đen
            // if(to < 17 )        // Nếu quân tại điểm tới là quân đỏ thì không cho đánh ( vì không thể ăn quân cùng màu ( quân đỏ ăn quân đỏ) )
+            Toast.makeText(this, board[from_index]+"", Toast.LENGTH_SHORT).show();
         }
 
         switch(from) {

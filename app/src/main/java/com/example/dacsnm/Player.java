@@ -19,10 +19,10 @@ public class Player implements Runnable {
     private boolean isMyturn = false;
     private DataStation dataStation = DataStation.newInstance();
 
-    public Player() {
+    public Player(String ip) {
         new Thread(() -> {
             try {
-                Socket soc = new Socket("192.168.1.9", 8888);
+                Socket soc = new Socket(ip, 8888);
                 dos = new DataOutputStream(soc.getOutputStream());
                 dis = new DataInputStream(soc.getInputStream());
             } catch (IOException e) {
@@ -44,8 +44,9 @@ public class Player implements Runnable {
                 }
             }
             while(true) {
-                int ix = Integer.parseInt(dis.readUTF());
-                int iy = Integer.parseInt(dis.readUTF());
+                int indexFrom = Integer.parseInt(dis.readUTF());
+                int indexTo = Integer.parseInt(dis.readUTF());
+                dataStation.onMove(indexFrom,indexTo);
             }
         }catch(IOException e) {
             e.printStackTrace();
@@ -54,12 +55,18 @@ public class Player implements Runnable {
     }
 
     public void pushMoveToServer(int from,int to){
-        try {
-            dos.writeUTF(String.valueOf(from));
-            dos.writeUTF(String.valueOf(to));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    dos.writeUTF(String.valueOf(from));
+                    dos.writeUTF(String.valueOf(to));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
     }
 
 
