@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">DACSNM</string>
+    <string name="nh_p_nickname">Nhập nickname</string>
+    <string name="ok">Chơi</string>
+    <string name="cancel">Hủy</string>
+    <string name="ng_i_ch_i_1">Người chơi 1</string>
+    <string name="ng_i_ch_i_2">Người chơi 2</string>
+    <string name="nh_p_nickname">Nhập nickname</string>
 </resources>

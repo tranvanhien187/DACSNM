@@ -5,6 +5,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -223,20 +224,13 @@ public class TwoPlayersActivity extends AppCompatActivity {
         int to_x = to_index%9;      // lấy toạ độ x của vị trí muốn tới
         int to_y = to_index/9;      // lấy toạ độ x của vị trí muốn tới
         int from = board[from_index];  //  lấy quân cờ hiện tại được chọn
-        int to = board[to_index];      // lấy quân cờ tại điểm đến
-        if(isRedTurn){  // Lượt quân đỏ
-            if(to >= 17)        // Nếu quân tại điểm tới là quân đỏ thì không cho đánh ( vì không thể ăn quân cùng màu ( quân đỏ ăn quân đỏ) )
-                return false;       //
-        }else{  // Lượt quân đen
-           // if(to < 17 )        // Nếu quân tại điểm tới là quân đỏ thì không cho đánh ( vì không thể ăn quân cùng màu ( quân đỏ ăn quân đỏ) )
-            Toast.makeText(this, board[from_index]+"", Toast.LENGTH_SHORT).show();
-        }
+        int chessMan = board[to_index];      // lấy quân cờ tại điểm đến
+
 
         switch(from) {
             case 17:case 18:case 1:case 2: // Xe
                 if(from_x != to_x && from_y != to_y) // Điều kiện x không bằng x , y không bằng y thì sẽ không cùng hàng
                     return false;
-                // 路径上不能有其他棋子
                 // Kiểm tra vật cản trên đường
                 if(from_y == to_y) {  // hàng ngang
                     if(from_index < to_index) {  // Từ vị trí hiện tại cho đến vị trí tới nếu có quân khác thì không được đi
@@ -323,10 +317,9 @@ public class TwoPlayersActivity extends AppCompatActivity {
                         !(to_x == from_x-1 && to_y == from_y+1)&&!(to_x == from_x-1 && to_y == from_y-1))
                     return false;
                 break;
-            case 32: // tướng
+            case 32: // tướng đỏ
                 // Trường hợp tướng đối mặt tướng
-                if(to == 16 && from_x == to_x) {
-                    Toast.makeText(this, "tướng", Toast.LENGTH_SHORT).show();
+                if(chessMan == 16 && from_x == to_x) {
                     int i = 0;
                     for (i = 0; i < 90; i++)
                         if (board[i] == 16)
@@ -341,27 +334,64 @@ public class TwoPlayersActivity extends AppCompatActivity {
                 }
                 // Không thể rời khỏi cung điện
                 if(to_y < 7 || to_x <3 || to_x > 5){
-                    //Toast.makeText(this, "Không thể rời khỏi cung điện", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Không thể rời khỏi cung điện", Toast.LENGTH_SHORT).show();
                     return false;
                 }
                 // Đi thẳng
                 if(to_index != from_index+1 && to_index != from_index-1 && to_index != from_index+9 && to_index != from_index-9)
                     return false;
                 // Tướng không thể nhìn thẳng
-                int i = 0;
+                int i;
                 for(i = 0; i < 90; i++)  // Tìm vị trí tướng địch
                     if(board[i] == 16)
                         break;
                 if(i%9 == to_x) {       // Vị trí của tướng địch thẳng hàng dọc vị trí tướng mình đi tới
                     //Toast.makeText(this, "Check", Toast.LENGTH_SHORT).show();
-                    int count = 0;
                     for(int j = to_index-9; j > i; j-=9)  // Tìm vật cản
                         if(board[j] != 0){
-                            count++;
-                            break;
+                            return true;
                         }
-                    if(count==0)        // Không có vật cản thì không cho đi
-                        return false;
+                    Toast.makeText(this, "Không đi được vì đối mặt tướng", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                break;
+            case 16:  // tướng đen
+                if(chessMan == 32 && from_x == to_x) {
+                    i = 0;
+                    for (i = 0; i < 90; i++)
+                        if (board[i] == 32)
+                            break;
+                    if (i % 9 == to_x) {
+                        for (int j = from_index - 9; j > i; j -= 9)
+                            if (board[j] != 0){ // gặp vật cản
+                                return false;
+                            }
+                        return true;
+                    }
+                }
+                if(to_y > 2 || to_x <3 || to_x > 5){
+                    Toast.makeText(this, "Không thể rời khỏi cung điện", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                // Đi thẳng
+                if(to_index != from_index+1 && to_index != from_index-1 && to_index != from_index+9 && to_index != from_index-9)
+                    return false;
+                i = 0;
+                for(i = 0; i < 90; i++)  // Tìm vị trí tướng địch
+                    if(board[i] == 32)
+                        break;
+                if(i%9 == to_x) {       // Vị trí của tướng địch thẳng hàng dọc vị trí tướng mình đi tới
+                    for(int j = to_index+9; j < i; j+=9){
+                        // Tìm vật cản
+                        Log.d("AAA","to_index " + to_index);
+                        Log.d("AAA","Quan " + board[j]+ chess_name(board[j]));
+                        if(board[j] != 0){ // Có vật cản nên cho đi
+                            return true;
+                        }
+                    }
+
+                    Toast.makeText(this, "Không đi được vì đối mặt tướng", Toast.LENGTH_SHORT).show();
+                    return false;
                 }
                 break;
             case 25: case 26: case 9: case 10: // pháo

@@ -5,5 +5,5 @@ public interface Observable{
     void unregisterObserver(Observer observer);
     void onGamePlay(int turn);
     void onMove(int indexFrom,int indexTo);
-    void onGameOver(boolean isWin);
+    void onGameWinOrLose(boolean isRed);
 }

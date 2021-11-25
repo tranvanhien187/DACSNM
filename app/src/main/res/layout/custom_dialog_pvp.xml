@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <EditText
+        android:hint="@string/nh_p_nickname"
+        android:layout_marginTop="20dp"
+        android:id="@+id/edt_player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="Autofill,LabelFor,TextFields" />
+    <Button
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/edt_player"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/btn_ok"
+        android:textColor="@color/black"
+        android:background="?android:attr/selectableItemBackground"
+        android:text="@string/ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true" />
+
+    <Button
+        android:layout_marginTop="20dp"
+        android:id="@+id/btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edt_player"
+        android:layout_toStartOf="@id/btn_ok"
+        android:background="?android:attr/selectableItemBackground"
+        android:text="@string/cancel"
+        android:textColor="@color/black"
+        android:layout_toLeftOf="@id/btn_ok" />
+</RelativeLayout>

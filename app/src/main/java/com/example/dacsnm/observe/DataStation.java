@@ -43,9 +43,9 @@ public class DataStation implements Observable{
     }
 
     @Override
-    public void onGameOver(boolean isWin) {
+    public void onGameWinOrLose(boolean isWin) {
         for (int i =0;i<listObserver.size();i++){
-            listObserver.get(i).onGameOver(isWin);
+            listObserver.get(i).onGameWinOrLose(isWin);
         }
     }
 
