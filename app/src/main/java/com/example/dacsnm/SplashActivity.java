@@ -6,13 +6,16 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class SplashActivity extends AppCompatActivity {
-    private static final String ipDell = "192.168.1.3";
+import com.example.dacsnm.observe.DataStation;
 
+public class SplashActivity extends AppCompatActivity {
+
+    private static final String ipDell = "192.168.1.7";
     private Player player ;
 
     @Override
@@ -21,7 +24,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         findViewById(R.id.btn_pvp).setOnClickListener(view->{
-            startActivity(new Intent(this,MainActivity.class));
+            showDialogPvP();
         });
 
         findViewById(R.id.btn_pvf).setOnClickListener(view->{
@@ -43,6 +46,7 @@ public class SplashActivity extends AppCompatActivity {
 
         btnOk.setOnClickListener(view -> {
             player = Player.getInstance(ipDell,edt.getText().toString());
+            startActivity(new Intent(SplashActivity.this,MainActivity.class));
             dialog.dismiss();
         });
         btnCancel.setOnClickListener(view-> dialog.dismiss()

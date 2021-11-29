@@ -5,5 +5,9 @@
     <string name="cancel">Hủy</string>
     <string name="ng_i_ch_i_1">Người chơi 1</string>
     <string name="ng_i_ch_i_2">Người chơi 2</string>
-    <string name="nh_p_nickname">Nhập nickname</string>
+    <string name="ang_s_p_x_p_b_n_ch_i">Đang sắp xếp bàn chơi</string>
+    <string name="tho_t">Thoát</string>
+    <string name="ch_i_l_i">Chơi lại</string>
+    <string name="ng">Đồng ý</string>
+    <string name="t_ch_i">Từ chối</string>
 </resources>

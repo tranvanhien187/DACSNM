@@ -18,6 +18,14 @@ public class DataStation implements Observable{
         return dataStation;
     }
 
+    public static List<Observer> getListObserver() {
+        return listObserver;
+    }
+
+    public static void setListObserver(List<Observer> listObserver) {
+        DataStation.listObserver = listObserver;
+    }
+
     @Override
     public void registerObserver(Observer observer) {
         listObserver.add(observer);
@@ -25,13 +33,13 @@ public class DataStation implements Observable{
 
     @Override
     public void unregisterObserver(Observer observer) {
-        listObserver.add(observer);
+        listObserver.remove(observer);
     }
 
     @Override
-    public void onGamePlay(int turn) {
+    public void onGameStart(int turn,String player1,String player2) {
         for (int i =0;i<listObserver.size();i++){
-            listObserver.get(i).onGamePlay(turn);
+            listObserver.get(i).onGamePlay(turn,player1,player2);
         }
     }
 
@@ -46,6 +54,41 @@ public class DataStation implements Observable{
     public void onGameWinOrLose(boolean isWin) {
         for (int i =0;i<listObserver.size();i++){
             listObserver.get(i).onGameWinOrLose(isWin);
+        }
+    }
+
+    @Override
+    public void onSendActionPlayAgain(int turn) {
+        for (int i =0;i<listObserver.size();i++){
+            listObserver.get(i).onSendActionPlayAgain(turn);
+        }
+    }
+
+    @Override
+    public void onAcceptActionPlayAgain() {
+        for (int i =0;i<listObserver.size();i++){
+            listObserver.get(i).onAcceptActionPlayAgain();
+        }
+    }
+
+    @Override
+    public void onDeclineActionPlayAgain() {
+        for (int i =0;i<listObserver.size();i++){
+            listObserver.get(i).onDeclineActionPlayAgain();
+        }
+    }
+
+    @Override
+    public void onPlayAgain() {
+        for (int i =0;i<listObserver.size();i++){
+            listObserver.get(i).onPlayAgain();
+        }
+    }
+
+    @Override
+    public void onQuit() {
+        for (int i =0;i<listObserver.size();i++){
+            listObserver.get(i).onQuit();
         }
     }
 

@@ -1,13 +1,20 @@
 package com.example.dacsnm;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,29 +31,19 @@ public class MainActivity extends AppCompatActivity implements Observer {
     *   Black turn : 2
     **/
 
+    private RelativeLayout layoutWaiting;
+    private ConstraintLayout constraintLayout;
+    private TextView txtPlayer1,txtPlayer2;
+    private AlertDialog dialogWinOrLose;
+
     private static final String ipDell = "192.168.1.3";
     private static final String ipMSI = "192.168.1.9";
     private final DataStation dataStation = DataStation.newInstance();
-    private ConstraintLayout constraintLayout;
     boolean isMyTurn ;
     static boolean isRed ;
     int last_click = -1;
     boolean over = false;
-
     private Player mPlayer;
-
-    void restart(View view) {
-        if(!isMyTurn) {
-            Toast.makeText( getApplicationContext(), "这不是你的回合", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if(record.size()>1) {
-            board = first_board.clone();
-            initBoard();
-        } else {
-            Toast.makeText( getApplicationContext(), "您还没有落子", Toast.LENGTH_SHORT).show();
-        }
-    }
 
 //    void set_info() {
 //        ImageView tv = findViewById(R.id.info);
@@ -90,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
      */
 
     //
-    private final int[] first_board = {
+    private final int[] firstBoard = {
             1, 3, 5, 7,16, 8, 6, 4, 2,
             0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 9, 0, 0, 0, 0, 0,10, 0,
@@ -172,9 +169,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        layoutWaiting = findViewById(R.id.layout_waiting);
+        txtPlayer1 = findViewById(R.id.txt_name_player_1);
+        txtPlayer2 = findViewById(R.id.txt_name_player_2);
 
         // Tạo người chơi
-        mPlayer = Player.getInstance("","");
+        mPlayer = Player.getInstance("192.168.1.6","Hien");
         new Thread(mPlayer).start();
 
         dataStation.registerObserver(this);
@@ -195,18 +195,12 @@ public class MainActivity extends AppCompatActivity implements Observer {
         }
     }
 
-    void update_action(int index) {
+    void updateAction(int index) {
         record_board();
-        TextView AI_action = findViewById(R.id.AI_action);
-        TextView player_action = findViewById(R.id.player_action);
-        if(isMyTurn) {
-            player_action.setText("Player : move"+chess_name(board[index]));
-        } else {
-            AI_action.setText("AI: move"+chess_name(board[index]));
-        }
+        Log.d("AAA","index : "+index);
     }
 
-    String chess_name(int chess) {
+    private String chess_name(int chess) {
         // 车
         if(chess == 1 || chess == 2 || chess == 17 || chess == 18)
             return "车";
@@ -470,26 +464,6 @@ public class MainActivity extends AppCompatActivity implements Observer {
         return true;
     }
 
-    void game_over(int[] board) {
-        boolean win = true;
-        boolean lose = true;
-        for(int i = 0; i < board.length; i++) {
-            if(board[i] == 16)
-                win=false;
-            if(board[i] == 32)
-                lose=false;
-        }
-        if(win) {
-            over = true;
-            Toast.makeText(getApplicationContext(), "You win!", Toast.LENGTH_SHORT).show();
-        }
-        if(lose) {
-            over = true;
-            Toast.makeText(getApplicationContext(), "You lose!", Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
 
     // Hiển thị con đang chọn trên màn hình
     void set_choose(Drawable d) {
@@ -517,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     set_choose(target.getBackground());
                     last_click = id;
                 }else if (canMove(last_click, id)) {  // Click vào ô không phải là quân đỏ thì kiểm tra có thể đi được hay không
-                    update_action(last_click);
+                    updateAction(last_click);
 
                     /**
                     * push len server
@@ -550,7 +524,7 @@ public class MainActivity extends AppCompatActivity implements Observer {
                     set_choose(target.getBackground());
                     last_click = id;
                 }else if (canMove(last_click, id)) {  // Click vào ô không phải là quân đen thì kiểm tra có thể đi được hay không
-                    update_action(last_click);
+                    updateAction(last_click);
                     if(board[id]==32){
                         mPlayer.pushMoveToServer(last_click,id);
                         mPlayer.pushActionWin(Player.KEY_BLACK_WIN);
@@ -564,38 +538,95 @@ public class MainActivity extends AppCompatActivity implements Observer {
 
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    public void onGamePlay(int turn) {
-        if(turn==1){
-            isMyTurn = true;
-            isRed = true;
-        }else{
-            isMyTurn = false;
-            isRed = false;
-        }
-        this.runOnUiThread(() -> Toast.makeText(MainActivity.this, "turn "+turn, Toast.LENGTH_SHORT).show());
+    public void onGamePlay(int turn,String player1,String player2) {
+        this.runOnUiThread(() -> {
+            if(turn==1){
+                isMyTurn = true;
+                isRed = true;
+                txtPlayer1.setBackgroundColor(getColor(R.color.red));
+                txtPlayer2.setBackgroundColor(getColor(R.color.grey));
+//                mPlayer.pushActionWin(Player.KEY_RED_WIN);
+            }else{
+                isMyTurn = false;
+                isRed = false;
+                txtPlayer1.setBackgroundColor(getColor(R.color.red));
+                txtPlayer2.setBackgroundColor(getColor(R.color.grey));
+            }
+            layoutWaiting.setVisibility(View.GONE);
+            txtPlayer1.setText(player1);
+            txtPlayer2.setText(player2);
+            Toast.makeText(MainActivity.this, "turn "+turn, Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override
     public void onGameWinOrLose(boolean isRed) {
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(MainActivity.isRed==isRed){
-                    Toast.makeText(MainActivity.this, "You Win", Toast.LENGTH_SHORT).show();
-                }else {
-                    Toast.makeText(MainActivity.this, "You Lose", Toast.LENGTH_SHORT).show();
-                }
+        this.runOnUiThread(() -> {
+            if(MainActivity.isRed==isRed){
+                showDialogWinOrLose("Bạn đã chiến thắng");
+            }else {
+                showDialogWinOrLose("Bạn đã thất bại");
             }
         });
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onMove(int indexFrom, int indexTo) {
         handleMove(indexFrom,indexTo);
     }
 
+    @Override
+    public void onSendActionPlayAgain(int turn) {
+        this.runOnUiThread(this::showDialogAcceptOrDeclinePlayAgain);
+    }
+
+    @Override
+    public void onAcceptActionPlayAgain() {
+        this.runOnUiThread(() -> {
+            Toast.makeText(MainActivity.this, "Đối thủ chấp nhận", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    public void onDeclineActionPlayAgain() {
+        this.runOnUiThread(() -> {
+            Toast.makeText(MainActivity.this, "Đối thủ từ chối", Toast.LENGTH_SHORT).show();
+            mPlayer.clear();
+            finish();
+        });
+    }
+
+    @Override
+    public void onPlayAgain() {
+        runOnUiThread(()->{
+            board = firstBoard.clone();
+            initBoard();
+            record.clear();
+            record.add(board.clone());
+            Toast.makeText(MainActivity.this, "Ván đấu bắt đầu", Toast.LENGTH_SHORT).show();
+            if(isRed){
+                isMyTurn = true;
+                Toast.makeText(MainActivity.this, "Bạn đi trước", Toast.LENGTH_SHORT).show();
+            }else{
+                isMyTurn = false;
+                Toast.makeText(MainActivity.this, "Bạn đi sau", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onQuit() {
+        runOnUiThread(()->{
+            Toast.makeText(this, "Đối thủ đã thoát", Toast.LENGTH_SHORT).show();
+            finish();
+        });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void handleMove(int indexFrom, int indexTo ){
         this.runOnUiThread(() -> {
             ImageView from = (ImageView) constraintLayout.getChildAt(indexFrom);
@@ -607,11 +638,76 @@ public class MainActivity extends AppCompatActivity implements Observer {
             set_choose(null);                   // hiển thị con cờ đang được chon
             last_click = -1;                    // gán giá trị cho lần click cuối cùng là không có quân nào
             isMyTurn = !isMyTurn;
-            //gameOver(board);
-            if (over) return;
+
+            record.add(board.clone());
+
+            if(isRed && isMyTurn){
+                txtPlayer1.setBackgroundColor(getColor(R.color.red));
+                txtPlayer2.setBackgroundColor(getColor(R.color.grey));
+            }else if(isRed && !isMyTurn) {
+                txtPlayer1.setBackgroundColor(getColor(R.color.grey));
+                txtPlayer2.setBackgroundColor(getColor(R.color.black));
+            }else if(!isRed && isMyTurn) {
+                txtPlayer1.setBackgroundColor(getColor(R.color.grey));
+                txtPlayer2.setBackgroundColor(getColor(R.color.black));
+            }else if(!isRed && !isMyTurn) {
+                txtPlayer1.setBackgroundColor(getColor(R.color.red));
+                txtPlayer2.setBackgroundColor(getColor(R.color.grey));
+            }
         });
 
     }
 
 
+    @SuppressLint("InflateParams")
+    private void showDialogWinOrLose(String text){
+        LayoutInflater inflater = getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(text)
+                .setView(inflater.inflate(R.layout.custom_dialog_win_or_lose, null));
+        dialogWinOrLose = builder.create();
+        dialogWinOrLose.show();
+        Button btnQuit = dialogWinOrLose.findViewById(R.id.btn_exit);
+        Button btnPlay = dialogWinOrLose.findViewById(R.id.btn_play_again);
+
+        btnQuit.setOnClickListener(view -> {
+            dialogWinOrLose.dismiss();
+            mPlayer.pushActionQuit();
+            finish();
+        });
+        btnPlay.setOnClickListener(view-> {
+            dialogWinOrLose.dismiss();
+            mPlayer.pushActionSendRequestPlayAgain();
+        });
+    }
+
+    private void showDialogAcceptOrDeclinePlayAgain() {
+        if(dialogWinOrLose.isShowing()){
+            dialogWinOrLose.dismiss();
+        }
+        LayoutInflater inflater = getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Đối thủ muốn chơi lại")
+                .setView(inflater.inflate(R.layout.custom_dialog_decline_or_accept, null));
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        Button btnDecline = dialog.findViewById(R.id.btn_decline);
+        Button btnAccept = dialog.findViewById(R.id.btn_accept);
+
+        btnDecline.setOnClickListener(view -> {
+            dialog.dismiss();
+            finish();
+            mPlayer.pushDeclinePlayAgain();
+        });
+        btnAccept.setOnClickListener(view -> {
+            dialog.dismiss();
+            mPlayer.pushAcceptPlayAgain();
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dataStation.unregisterObserver(this);
+    }
 }

@@ -7,8 +7,11 @@
         <entry key="..\:/AndroidStudio/DACSNM/app/src/main/res/layout/activity_splash.xml" value="0.264" />
         <entry key="..\:/AndroidStudio/DACSNM/app/src/main/res/layout/activity_test.xml" value="0.17300724637681159" />
         <entry key="..\:/AndroidStudio/DACSNM/app/src/main/res/layout/activity_two_players.xml" value="0.17300724637681159" />
+        <entry key="..\:/AndroidStudio/DACSNM/app/src/main/res/layout/custom_dialog_decline_or_accept.xml" value="0.20833333333333334" />
         <entry key="..\:/AndroidStudio/DACSNM/app/src/main/res/layout/custom_dialog_pvf.xml" value="0.17708333333333334" />
         <entry key="..\:/AndroidStudio/DACSNM/app/src/main/res/layout/custom_dialog_pvp.xml" value="0.17708333333333334" />
+        <entry key="..\:/AndroidStudio/DACSNM/app/src/main/res/layout/custom_dialog_waiting.xml" value="0.20833333333333334" />
+        <entry key="..\:/AndroidStudio/DACSNM/app/src/main/res/layout/custom_dialog_win_or_lose.xml" value="0.20833333333333334" />
       </map>
     </option>
   </component>
